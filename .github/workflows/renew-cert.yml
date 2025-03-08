@@ -25,8 +25,8 @@ jobs:
 
       - name: 3. 设置阿里云和Cloudflare的API密钥
         env:
-          Ali_Key: ${{ env.ALI_K }}
-          Ali_Secret: ${{ env.ALI_SEC }}
+          Ali_Key: ${{ vars.ALI_KEY }}
+          Ali_Secret: ${{ vars.ALI_SEC }}
           CF_Key: ${{ secrets.CF_KEY }}
           CF_Email: ${{ secrets.CF_EMAIL }}
         run: |
