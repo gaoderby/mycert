@@ -41,37 +41,21 @@ jobs:
           ~/.acme.sh/acme.sh --issue \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
-            --cert-file gaoyp.com.cer \
-            --key-file gaoyp.com.key \
-            --fullchain-file gaoyp.com.fullchain.cer \
-            --log $(pwd)/acme-ali.log \  # 将日志保存到文件
-            --debug 2                   # 强制开启 acme.sh 调试模式
-            #--yes-I-know-dns-manual-mode-enough-go-ahead-please
-          # 打印日志到控制台
-          cat acme-ali.log
+            --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
           # 签发默认Cloudflare域名单证书
           ~/.acme.sh/acme.sh --issue \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --cert-file gaotz.com.cer \
-            --key-file gaotz.com.key \
-            --fullchain-file gaotz.com.fullchain.cer \
-            --log $(pwd)/acme-cf.log \  # 将日志保存到文件
-            --debug 2                   # 强制开启 acme.sh 调试模式
-            #--yes-I-know-dns-manual-mode-enough-go-ahead-please
-          # 打印日志到控制台
-          cat acme-cf.log
+            --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
       - name: 5. 保存证书到仓库
         run: |
           mkdir -p certs
           cp ~/.acme.sh/gaoyp.com/gaoyp.com.cer certs/
           cp ~/.acme.sh/gaoyp.com/gaoyp.com.key certs/
-          cp ~/.acme.sh/gaoyp.com/gaoyp.com.fullchain.cer certs/
           cp ~/.acme.sh/gaotz.com/gaotz.com.cer certs/
           cp ~/.acme.sh/gaotz.com/gaotz.com.key certs/
-          cp ~/.acme.sh/gaotz.com/gaotz.com.fullchain.cer certs/
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add certs/
