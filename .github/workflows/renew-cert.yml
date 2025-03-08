@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: 1. 检出仓库
         uses: actions/checkout@v4
-        # 单独开启某个步骤的 Shell 调试模式
-        shell: bash -x {0}
 
       - name: 2. 安装 acme.sh
         run: |
