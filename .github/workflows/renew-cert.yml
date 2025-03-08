@@ -44,13 +44,13 @@ jobs:
           # 签发默认阿里云域名单证书
           ~/.acme.sh/acme.sh --issue \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-      -- debug \
+            -- debug \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
           # 签发默认Cloudflare域名单证书
           ~/.acme.sh/acme.sh --issue \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
-      -- debug \
+            -- debug \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
       - name: 5. 保存证书到仓库
