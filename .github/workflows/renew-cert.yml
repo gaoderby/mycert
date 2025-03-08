@@ -8,14 +8,23 @@ on:
 jobs:
   renew:
     runs-on: ubuntu-latest
+    # 启用步骤调试日志（全局生效）
+    env:
+      ACTIONS_STEP_DEBUG: true  # 开启 GitHub Actions 的调试日志
+      ACME_DEBUG: 2             # 开启 acme.sh 的详细日志
+
     steps:
       - name: 1. 检出仓库
         uses: actions/checkout@v4
+        # 单独开启某个步骤的 Shell 调试模式
+        shell: bash -x {0}
 
       - name: 2. 安装 acme.sh
         run: |
-          curl https://get.acme.sh | sh
+          echo "===== 开始安装 acme.sh ====="
+          curl -v https://get.acme.sh | sh  # -v 参数显示详细连接过程
           echo "$HOME/.acme.sh" >> $GITHUB_PATH
+          ls -la ~/.acme.sh  # 检查安装目录是否存在
 
       - name: 3. 设置阿里云和Cloudflare的API密钥
         env:
@@ -38,7 +47,11 @@ jobs:
             --cert-file gaoyp.com.cer \
             --key-file gaoyp.com.key \
             --fullchain-file gaoyp.com.fullchain.cer \
+            --log $(pwd)/acme-ali.log \  # 将日志保存到文件
+            --debug 2 \                  # 强制开启 acme.sh 调试模式
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
+          # 打印日志到控制台
+          cat acme-ali.log
 
           # 签发默认Cloudflare域名单证书
           ~/.acme.sh/acme.sh --issue \
@@ -47,7 +60,11 @@ jobs:
             --cert-file gaotz.com.cer \
             --key-file gaotz.com.key \
             --fullchain-file gaotz.com.fullchain.cer \
+            --log $(pwd)/acme-ali.log \  # 将日志保存到文件
+            --debug 2 \                  # 强制开启 acme.sh 调试模式
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
+          # 打印日志到控制台
+          cat acme-ali.log
 
       - name: 5. 保存证书到仓库
         run: |
