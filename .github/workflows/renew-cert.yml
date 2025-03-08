@@ -32,15 +32,6 @@ jobs:
           echo "更新后的.acme.sh 版本:"
           ~/.acme.sh/acme.sh --version
 
-      - name: 2. 安装并更新 acme.sh
-        run: |
-          curl https://get.acme.sh | sh -s email=your_email@example.com
-          echo "$HOME/.acme.sh" >> $GITHUB_PATH
-          ~/.acme.sh/acme.sh --upgrade --auto-upgrade 1
-          echo "当前 acme.sh 版本:"
-          ~/.acme.sh/acme.sh --version
-
-
       - name: 3. 设置默认CA服务器并注册用户
         run: |
           echo "Ali_Key=: ${Ali_Key}" # 检查输出是否非空
@@ -64,10 +55,10 @@ jobs:
           ~/.acme.sh/acme.sh --remove -d gaoyp.com -d *.gaoyp.com
           ~/.acme.sh/acme.sh --remove -d gaotz.com -d *.gaotz.com
           ~/.acme.sh/acme.sh --issue --force \
+            --dnssleep 120 \
             --dns-server 1.1.1.1,8.8.8.8 \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
-            --dnssleep 120 \
             --debug 2
 
       - name: 5. 签发单证书-CF
