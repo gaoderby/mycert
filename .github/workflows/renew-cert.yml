@@ -1,0 +1,82 @@
+name: Auto Renew Combined Certificate
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # 每天北京时间 11 点运行
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 2. 安装 acme.sh
+        run: |
+          curl https://get.acme.sh | sh
+          echo "$HOME/.acme.sh" >> $GITHUB_PATH
+
+      - name: 3. 设置阿里云和Cloudflare的API密钥
+        env:
+          Ali_Key: ${{ secrets.Ali_Key }}
+          Ali_Secret: ${{ secrets.Ali_Secret }}
+          CF_Key: ${{ secrets.CF_Key }}
+          CF_Email: ${{ secrets.CF_Email }}
+        run: |
+          # 设置默认ca服务器，有两个letsencrypt和zerossl，acme当前默认后者
+          #~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+          ~/.acme.sh/acme.sh --set-default-ca --server zerossl
+          ~/.acme.sh/acme.sh --register-account -m derby_king@qq.com
+
+      - name: 4. 签发单证书（包含所有域名）
+        run: |
+          # 签发默认阿里云域名单证书
+          ~/.acme.sh/acme.sh --issue \
+            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
+            --dns dns_cf -d gaotz.com -d *.gaotz.com \
+            --cert-file gaoyp.com.cer \
+            --key-file gaoyp.com.key \
+            -.com.fullchain-file gaoyp.com.fullchain.cer \
+            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+
+          # 签发默认Cloudflare域名单证书
+          ~/.acme.sh/acme.sh --issue \
+            --dns dns_cf -d gaotz.com -d *.gaotz.com \
+            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
+            --cert-file gaotz.com.cer \
+            --key-file gaotz.com.key \
+            -.com.fullchain-file gaotz.com.fullchain.cer \
+            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+
+      - name: 5. 保存证书到仓库
+        run: |
+          mkdir -p certs
+          cp ~/.acme.sh/gaoyp.com/gaoyp.com.cer certs/
+          cp ~/.acme.sh/gaoyp.com/gaoyp.com.key certs/
+          cp ~/.acme.sh/gaoyp.com/gaoyp.com.fullchain.cer certs/
+          cp ~/.acme.sh/gaotz.com/gaotz.com.cer certs/
+          cp ~/.acme.sh/gaotz.com/gaotz.com.key certs/
+          cp ~/.acme.sh/gaotz.com/gaotz.com.fullchain.cer certs/
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add certs/
+          git commit -m "Update combined certificate"
+          git push
+       
+      - name: 6. 安装 TFTP 客户端
+        run: sudo apt-get install -y tftp-hpa
+
+      - name: 7. 通过 TFTP 上传证书到 gaoyp.com
+        run: |
+          echo "上传阿里云证书..."
+          echo -e "binary\nput certs/gaoyp.com.cer\quit" | tftp gaoyp.com 69
+          echo "上传Cloudflare证书..."
+          echo -e "binary\nput certs/gaotz.com.cer\quit" | tftp gaoyp.com 69
+          echo "上传阿里云证书full..."
+          echo -e "binary\nput certs/gaoyp.com.fullchain.cer\quit" | tftp gaoyp.com 69
+          echo "上传Cloudflare证书full..."
+          echo -e "binary\nput certs/gaotz.com.fullchain.cer\quit" | tftp gaoyp.com 69
+          echo "上传私钥（谨慎操作！）..."
+          echo -e "binary\nput certs/gaoyp.com.key\quit" | tftp gaoyp.com 69
+          echo -e "binary\nput certs/gaotz.com.key\quit" | tftp gaoyp.com 69
