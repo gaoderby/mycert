@@ -46,7 +46,7 @@ jobs:
           echo "CF_Email1:= ${CF_Email}"
           ~/.acme.sh/acme.sh --issue --dns dns_ali -d gaoyp.com -d *.gaoyp.com
           ~/.acme.sh/acme.sh --remove -d gaoyp.com -d *.gaoyp.com
-          ~/.acme.sh/acme.sh --issue --force --dns-server 180 \
+          ~/.acme.sh/acme.sh --issue --force --dnssleep 180 \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             --dns dns_cf -d gaotz.com -d *.gaotz.com
 
