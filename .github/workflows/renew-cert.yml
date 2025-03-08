@@ -21,10 +21,25 @@ jobs:
       - name: 1. 检出仓库
         uses: actions/checkout@v4
 
-      - name: 2. 安装 acme.sh
+      - name: 2. 安装并更新 acme.sh
         run: |
           curl https://get.acme.sh | sh  # -v 参数显示详细连接过程
           ls -la ~/.acme.sh  # 检查安装目录是否存在
+          echo "当前 acme.sh 版本:"
+          ~/.acme.sh/acme.sh --version
+          echo "$HOME/.acme.sh" >> $GITHUB_PATH
+          ~/.acme.sh/acme.sh --upgrade --auto-upgrade 1
+          echo "更新后的.acme.sh 版本:"
+          ~/.acme.sh/acme.sh --version
+
+      - name: 2. 安装并更新 acme.sh
+        run: |
+          curl https://get.acme.sh | sh -s email=your_email@example.com
+          echo "$HOME/.acme.sh" >> $GITHUB_PATH
+          ~/.acme.sh/acme.sh --upgrade --auto-upgrade 1
+          echo "当前 acme.sh 版本:"
+          ~/.acme.sh/acme.sh --version
+
 
       - name: 3. 设置默认CA服务器并注册用户
         run: |
