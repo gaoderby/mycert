@@ -56,7 +56,6 @@ jobs:
           ~/.acme.sh/acme.sh --remove -d gaotz.com -d *.gaotz.com
           ~/.acme.sh/acme.sh --issue --force \
             --dnssleep 120 \
-            --dns-server 1.1.1.1,8.8.8.8 \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
             --debug 2
