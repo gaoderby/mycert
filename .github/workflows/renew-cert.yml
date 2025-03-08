@@ -25,10 +25,10 @@ jobs:
 
       - name: 3. 设置阿里云和Cloudflare的API密钥
         env:
-          Ali_Key: ${{ secrets.Ali_Key }}
-          Ali_Secret: ${{ secrets.Ali_Secret }}
-          CF_Key: ${{ secrets.CF_Key }}
-          CF_Email: ${{ secrets.CF_Email }}
+          ALI_KEY: ${{ secrets.ALI_KEY }}
+          ALI_SECRET: ${{ secrets.ALI_SECRET }}
+          CF_KEY: ${{ secrets.CF_KEY }}
+          CF_EMAIL: ${{ secrets.CF_EMAIL }}
         run: |
           # 设置默认ca服务器，有两个letsencrypt和zerossl，acme当前默认后者
           #~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
@@ -40,13 +40,11 @@ jobs:
           # 签发默认阿里云域名单证书
           ~/.acme.sh/acme.sh --issue \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --dns dns_cf -d gaotz.com -d *.gaotz.com \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
           # 签发默认Cloudflare域名单证书
           ~/.acme.sh/acme.sh --issue \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
-            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
       - name: 5. 保存证书到仓库
