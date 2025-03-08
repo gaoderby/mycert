@@ -70,7 +70,7 @@ jobs:
           echo "Ali_Secret1:= ${Ali_Secret}"
           echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
           echo "CF_Email1:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --issue \
+          ~/.acme.sh/acme.sh --issue --force --dnssleep 100 \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             -d gaotz.com -d *.gaotz.com \
             --cert-file gaoyp.com.cer \
@@ -84,7 +84,7 @@ jobs:
           echo "Ali_Secret2:= ${Ali_Secret}"
           echo "CF_Key2=: ${CF_Key}" # 检查输出是否非空
           echo "CF_Email2:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --issue \
+          ~/.acme.sh/acme.sh --issue --force --dnssleep 100 \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
             -d gaoyp.com -d *.gaoyp.com \
             --cert-file gaotz.com.cer \
