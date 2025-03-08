@@ -37,7 +37,7 @@ jobs:
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
             --cert-file gaoyp.com.cer \
             --key-file gaoyp.com.key \
-            --fullchain-file gaoyp.com.fullchain-file gaoyp.com.fullchain.cer \
+            --fullchain-file gaoyp.com.fullchain.cer \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
           # 签发默认Cloudflare域名单证书
@@ -46,7 +46,7 @@ jobs:
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             --cert-file gaotz.com.cer \
             --key-file gaotz.com.key \
-            --fullchain-file gaoyp.com.fullchain-file gaotz.com.fullchain.cer \
+            --fullchain-file gaotz.com.fullchain.cer \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
       - name: 5. 保存证书到仓库
