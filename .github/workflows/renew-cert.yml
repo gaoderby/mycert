@@ -67,21 +67,20 @@ jobs:
       - name: 6. 签发包含所有域名的单证书-Ali主域名
         run: |
           ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-          echo "Ali_Key1=: ${Ali_Key}" # 检查输出是否非空
-          echo "Ali_Secret1:= ${Ali_Secret}"
-          echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
-          echo "CF_Email1:= ${CF_Email}"
+          echo "Ali_Key3=: ${Ali_Key}" # 检查输出是否非空
+          echo "Ali_Secret3:= ${Ali_Secret}"
+          echo "CF_Key3=: ${CF_Key}" # 检查输出是否非空
+          echo "CF_Email3:= ${CF_Email}"
           ~/.acme.sh/acme.sh --issue --dnssleep 120 \
-            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \   # ✅ 阿里云域名在前，对应 dns_ali
-            --dns dns_cf -d gaotz.com -d *.gaotz.com      # ✅ Cloudflare 域名在后，对应 dns_cf
-
+            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
+            --dns dns_cf -d gaotz.com -d *.gaotz.com
 
       - name: 7. 签发包含所有域名的单证书-CF主域名
         run: |
-          echo "Ali_Key2=: ${Ali_Key}" # 检查输出是否非空
-          echo "Ali_Secret2:= ${Ali_Secret}"
-          echo "CF_Key2=: ${CF_Key}" # 检查输出是否非空
-          echo "CF_Email2:= ${CF_Email}"
+          echo "Ali_Key4=: ${Ali_Key}" # 检查输出是否非空
+          echo "Ali_Secret4:= ${Ali_Secret}"
+          echo "CF_Key4=: ${CF_Key}" # 检查输出是否非空
+          echo "CF_Email4:= ${CF_Email}"
           ~/.acme.sh/acme.sh --issue --force --dnssleep 120 \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
             -d gaoyp.com -d *.gaoyp.com \
