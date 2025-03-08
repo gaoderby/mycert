@@ -41,6 +41,10 @@ jobs:
 
       - name: 4. 签发单证书（包含所有域名）
         run: |
+          echo "Ali_Key=: ${Ali_Key}" # 检查输出是否非空
+          echo "Ali_Secret:= ${Ali_Secret}"
+          echo "CF_Key=: ${CF_Key}" # 检查输出是否非空
+          echo "CF_Email:= ${CF_Email}"
           # 签发默认Cloudflare域名单证书
           ~/.acme.sh/acme.sh --issue \
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
