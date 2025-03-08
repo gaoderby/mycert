@@ -45,10 +45,11 @@ jobs:
           echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
           echo "CF_Email1:= ${CF_Email}"
           ~/.acme.sh/acme.sh --issue --dns dns_ali -d gaoyp.com -d *.gaoyp.com
+          ~/.acme.sh/acme.sh --issue --dns dns_cf -d gaotz.com -d *.gaotz.com
           ~/.acme.sh/acme.sh --remove -d gaoyp.com -d *.gaoyp.com
+          ~/.acme.sh/acme.sh --remove -d gaotz.com -d *.gaotz.com
           ~/.acme.sh/acme.sh --issue --force --dnssleep 180 \
-            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --dns dns_cf -d gaotz.com -d *.gaotz.com
+            --dns dns_ali -d gaoyp.com -d *.gaoyp.com -d gaotz.com -d *.gaotz.com
 
       - name: 5. 签发单证书-CF
         run: |
