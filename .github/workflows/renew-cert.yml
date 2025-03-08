@@ -48,8 +48,12 @@ jobs:
           ~/.acme.sh/acme.sh --issue --dns dns_cf -d gaotz.com -d *.gaotz.com
           ~/.acme.sh/acme.sh --remove -d gaoyp.com -d *.gaoyp.com
           ~/.acme.sh/acme.sh --remove -d gaotz.com -d *.gaotz.com
-          ~/.acme.sh/acme.sh --issue --force --dnssleep 180 \
-            --dns dns_ali -d gaoyp.com -d *.gaoyp.com -d gaotz.com -d *.gaotz.com
+          ~/.acme.sh/acme.sh --issue --force \
+            --dns dns_ali -d gaoyp.com -d *.gaoyp.com
+            --dns dns_cf -d gaotz.com -d *.gaotz.com
+            --dnssleep 120 \
+            --dns-server 1.1.1.1,8.8.8.8 \
+            -- debug 2
 
       - name: 5. 签发单证书-CF
         run: |
