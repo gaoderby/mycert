@@ -20,8 +20,7 @@ jobs:
       - name: 2. 安装 acme.sh
         run: |
           echo "===== 开始安装 acme.sh ====="
-          curl -v https://get.acme.sh | sh  # -v 参数显示详细连接过程
-          echo "$HOME/.acme.sh" >> $GITHUB_PATH
+          curl https://get.acme.sh | sh  # -v 参数显示详细连接过程
           ls -la ~/.acme.sh  # 检查安装目录是否存在
 
       - name: 3. 设置阿里云和Cloudflare的API密钥
@@ -46,8 +45,8 @@ jobs:
             --key-file gaoyp.com.key \
             --fullchain-file gaoyp.com.fullchain.cer \
             --log $(pwd)/acme-ali.log \  # 将日志保存到文件
-            --debug 2 \                  # 强制开启 acme.sh 调试模式
-            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+            --debug 2                   # 强制开启 acme.sh 调试模式
+            #--yes-I-know-dns-manual-mode-enough-go-ahead-please
           # 打印日志到控制台
           cat acme-ali.log
 
@@ -58,11 +57,11 @@ jobs:
             --cert-file gaotz.com.cer \
             --key-file gaotz.com.key \
             --fullchain-file gaotz.com.fullchain.cer \
-            --log $(pwd)/acme-ali.log \  # 将日志保存到文件
-            --debug 2 \                  # 强制开启 acme.sh 调试模式
-            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+            --log $(pwd)/acme-cf.log \  # 将日志保存到文件
+            --debug 2                   # 强制开启 acme.sh 调试模式
+            #--yes-I-know-dns-manual-mode-enough-go-ahead-please
           # 打印日志到控制台
-          cat acme-ali.log
+          cat acme-cf.log
 
       - name: 5. 保存证书到仓库
         run: |
