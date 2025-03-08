@@ -34,11 +34,6 @@ jobs:
 
       - name: 3. 设置默认CA服务器并注册用户
         run: |
-          echo "Ali_Key=: ${Ali_Key}" # 检查输出是否非空
-          echo "Ali_Secret:= ${Ali_Secret}"
-          echo "CF_Key=: ${CF_Key}" # 检查输出是否非空
-          echo "CF_Email:= ${CF_Email}"
-
           # 设置默认ca服务器，有两个letsencrypt和zerossl，acme当前默认后者
           #~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
           ~/.acme.sh/acme.sh --set-default-ca --server zerossl
@@ -46,58 +41,21 @@ jobs:
 
       - name: 4. 签发单证书-Ali
         run: |
-          echo "Ali_Key1=: ${Ali_Key}" # 检查输出是否非空
-          echo "Ali_Secret1:= ${Ali_Secret}"
-          echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
-          echo "CF_Email1:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --issue --dns dns_ali -d gaoyp.com -d *.gaoyp.com
-          ~/.acme.sh/acme.sh --issue --dns dns_cf -d gaotz.com -d *.gaotz.com
-          #~/.acme.sh/acme.sh --remove -d gaoyp.com -d *.gaoyp.com
-          #~/.acme.sh/acme.sh --remove -d gaotz.com -d *.gaotz.com
-          ~/.acme.sh/acme.sh --issue --force \
-            --dnssleep 120 \
-            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --dns dns_cf -d gaotz.com -d *.gaotz.com \
-            --debug 2
+          ~/.acme.sh/acme.sh --issue --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
+            --cert-file gaoyp.com.1.cer \
+            --key-file gaoyp.com.1.key \
+            --fullchain-file gaoyp.com.1.fullchain.cer \
+            --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
       - name: 5. 签发单证书-CF
         run: |
-          echo "Ali_Key2=: ${Ali_Key}" # 检查输出是否非空
-          echo "Ali_Secret2:= ${Ali_Secret}"
-          echo "CF_Key2=: ${CF_Key}" # 检查输出是否非空
-          echo "CF_Email2:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --issue \
-            --dns dns_cf -d gaotz.com -d *.gaotz.com \
+          ~/.acme.sh/acme.sh --issue --dns dns_cf -d gaotz.com -d *.gaotz.com \
             --cert-file gaotz.com.1.cer \
             --key-file gaotz.com.1.key \
             --fullchain-file gaotz.com.1.fullchain.cer \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
-      - name: 6. 签发包含所有域名的单证书-Ali主域名
-        run: |
-          echo "Ali_Key3=: ${Ali_Key}" # 检查输出是否非空
-          echo "Ali_Secret3:= ${Ali_Secret}"
-          echo "CF_Key3=: ${CF_Key}" # 检查输出是否非空
-          echo "CF_Email3:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --renew \
-            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --dns dns_cf -d gaotz.com -d *.gaotz.com
-
-      - name: 7. 签发包含所有域名的单证书-CF主域名
-        run: |
-          echo "Ali_Key4=: ${Ali_Key}" # 检查输出是否非空
-          echo "Ali_Secret4:= ${Ali_Secret}"
-          echo "CF_Key4=: ${CF_Key}" # 检查输出是否非空
-          echo "CF_Email4:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --issue --force --dnssleep 120 \
-            --dns dns_cf -d gaotz.com -d *.gaotz.com \
-            -d gaoyp.com -d *.gaoyp.com \
-            --cert-file gaotz.com.cer \
-            --key-file gaotz.com.key \
-            --fullchain-file gaotz.com.fullchain.cer \
-            --yes-I-know-dns-manual-mode-enough-go-ahead-please
-
-      - name: 8. 保存证书到仓库
+      - name: 6. 保存证书到仓库
         run: |
           mkdir -p certs
           cp ~/.acme.sh/gaoyp.com/gaoyp.com.1.cer certs/
@@ -112,10 +70,10 @@ jobs:
           git commit -m "Update combined certificate"
           git push
        
-      - name: 9. 安装 TFTP 客户端
+      - name: 7. 安装 TFTP 客户端
         run: sudo apt-get install -y tftp-hpa
 
-      - name: 10. 通过 TFTP 上传证书到 gaoyp.com
+      - name: 8. 通过 TFTP 上传证书到 gaoyp.com
         run: |
           echo "上传阿里云证书..."
           echo -e "binary\nput certs/gaoyp.com.cer\quit" | tftp gaoyp.com 69
