@@ -66,6 +66,7 @@ jobs:
 
       - name: 6. 签发包含所有域名的单证书-Ali主域名
         run: |
+          ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
           echo "Ali_Key1=: ${Ali_Key}" # 检查输出是否非空
           echo "Ali_Secret1:= ${Ali_Secret}"
           echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
