@@ -38,7 +38,33 @@ jobs:
           ~/.acme.sh/acme.sh --set-default-ca --server zerossl
           ~/.acme.sh/acme.sh --register-account -m derby_king@qq.com
 
-      - name: 4. 签发包含所有域名的单证书-Ali主域名
+      - name: 4. 签发单证书-Ali
+        run: |
+          echo "Ali_Key1=: ${Ali_Key}" # 检查输出是否非空
+          echo "Ali_Secret1:= ${Ali_Secret}"
+          echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
+          echo "CF_Email1:= ${CF_Email}"
+          ~/.acme.sh/acme.sh --issue \
+            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
+            --cert-file gaoyp.com.1.cer \
+            --key-file gaoyp.com.1.key \
+            --fullchain-file gaoyp.com.1.fullchain.cer \
+            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+
+      - name: 5. 签发单证书-CF
+        run: |
+          echo "Ali_Key2=: ${Ali_Key}" # 检查输出是否非空
+          echo "Ali_Secret2:= ${Ali_Secret}"
+          echo "CF_Key2=: ${CF_Key}" # 检查输出是否非空
+          echo "CF_Email2:= ${CF_Email}"
+          ~/.acme.sh/acme.sh --issue \
+            --dns dns_cf -d gaotz.com -d *.gaotz.com \
+            --cert-file gaotz.com.1.cer \
+            --key-file gaotz.com.1.key \
+            --fullchain-file gaotz.com.1.fullchain.cer \
+            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+
+      - name: 6. 签发包含所有域名的单证书-Ali主域名
         run: |
           echo "Ali_Key1=: ${Ali_Key}" # 检查输出是否非空
           echo "Ali_Secret1:= ${Ali_Secret}"
@@ -52,7 +78,7 @@ jobs:
             --fullchain-file gaoyp.com.fullchain.cer \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
-      - name: 5. 签发包含所有域名的单证书-CF主域名
+      - name: 7. 签发包含所有域名的单证书-CF主域名
         run: |
           echo "Ali_Key2=: ${Ali_Key}" # 检查输出是否非空
           echo "Ali_Secret2:= ${Ali_Secret}"
@@ -66,25 +92,25 @@ jobs:
             --fullchain-file gaotz.com.fullchain.cer \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
-      - name: 6. 保存证书到仓库
+      - name: 8. 保存证书到仓库
         run: |
           mkdir -p certs
-          cp ~/.acme.sh/gaoyp.com/gaoyp.com.cer certs/
-          cp ~/.acme.sh/gaoyp.com/gaoyp.com.key certs/
-          cp ~/.acme.sh/gaoyp.com/gaoyp.com.fullchain.cer certs/
-          cp ~/.acme.sh/gaotz.com/gaotz.com.cer certs/
-          cp ~/.acme.sh/gaotz.com/gaotz.com.key certs/
-          cp ~/.acme.sh/gaotz.com/gaotz.com.fullchain.cer certs/
+          cp ~/.acme.sh/gaoyp.com/gaoyp.com.1.cer certs/
+          cp ~/.acme.sh/gaoyp.com/gaoyp.com.1.key certs/
+          cp ~/.acme.sh/gaoyp.com/gaoyp.com.1.fullchain.cer certs/
+          cp ~/.acme.sh/gaotz.com/gaotz.com.1.cer certs/
+          cp ~/.acme.sh/gaotz.com/gaotz.com.1.key certs/
+          cp ~/.acme.sh/gaotz.com/gaotz.com.1.fullchain.cer certs/
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add certs/
           git commit -m "Update combined certificate"
           git push
        
-      - name: 6. 安装 TFTP 客户端
+      - name: 9. 安装 TFTP 客户端
         run: sudo apt-get install -y tftp-hpa
 
-      - name: 7. 通过 TFTP 上传证书到 gaoyp.com
+      - name: 10. 通过 TFTP 上传证书到 gaoyp.com
         run: |
           echo "上传阿里云证书..."
           echo -e "binary\nput certs/gaoyp.com.cer\quit" | tftp gaoyp.com 69
