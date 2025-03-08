@@ -44,12 +44,11 @@ jobs:
           echo "Ali_Secret1:= ${Ali_Secret}"
           echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
           echo "CF_Email1:= ${CF_Email}"
+          ~/.acme.sh/acme.sh --issue --dns dns_ali -d gaoyp.com -d *.gaoyp.com
+          ~/.acme.sh/acme.sh --remove -d gaoyp.com -d *.gaoyp.com
           ~/.acme.sh/acme.sh --issue \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --cert-file gaoyp.com.1.cer \
-            --key-file gaoyp.com.1.key \
-            --fullchain-file gaoyp.com.1.fullchain.cer \
-            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+            --dns dns_cf -d gaotz.com -d *.gaotz.com
 
       - name: 5. 签发单证书-CF
         run: |
@@ -66,12 +65,11 @@ jobs:
 
       - name: 6. 签发包含所有域名的单证书-Ali主域名
         run: |
-          ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
           echo "Ali_Key3=: ${Ali_Key}" # 检查输出是否非空
           echo "Ali_Secret3:= ${Ali_Secret}"
           echo "CF_Key3=: ${CF_Key}" # 检查输出是否非空
           echo "CF_Email3:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --issue --dnssleep 120 \
+          ~/.acme.sh/acme.sh --renew \
             --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
             --dns dns_cf -d gaotz.com -d *.gaotz.com
 
