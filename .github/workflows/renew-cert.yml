@@ -25,11 +25,14 @@ jobs:
 
       - name: 3. 设置阿里云和Cloudflare的API密钥
         env:
-          ALI_KEY: ${{ secrets.ALI_KEY }}
-          ALI_SECRET: ${{ secrets.ALI_SECRET }}
-          CF_KEY: ${{ secrets.CF_KEY }}
-          CF_EMAIL: ${{ secrets.CF_EMAIL }}
+          Ali_Key: ${{ secrets.ALI_KEY }}
+          Ali_Secret: ${{ secrets.ALI_SECRET }}
+          CF_Key: ${{ secrets.CF_KEY }}
+          CF_Email: ${{ secrets.CF_EMAIL }}
         run: |
+          echo "Ali_Key: ${Ali_Key}"     # 检查输出是否非空
+          echo "Ali_Secret: ${Ali_Secret}"
+
           # 设置默认ca服务器，有两个letsencrypt和zerossl，acme当前默认后者
           #~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
           ~/.acme.sh/acme.sh --set-default-ca --server zerossl
