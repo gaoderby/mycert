@@ -53,7 +53,7 @@ jobs:
             --dns dns_cf -d gaotz.com -d *.gaotz.com \
             --dnssleep 120 \
             --dns-server 1.1.1.1,8.8.8.8 \
-            -- debug 2
+            --debug 2
 
       - name: 5. 签发单证书-CF
         run: |
