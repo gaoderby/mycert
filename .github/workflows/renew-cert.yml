@@ -71,8 +71,10 @@ jobs:
           echo "Ali_Secret1:= ${Ali_Secret}"
           echo "CF_Key1=: ${CF_Key}" # 检查输出是否非空
           echo "CF_Email1:= ${CF_Email}"
-          ~/.acme.sh/acme.sh --force --log --issue --dnssleep 120 \
-            --dns dns_ali -d gaoyp.com -d *.gaoyp.com -d gaotz.com -d *.gaotz.com
+          ~/.acme.sh/acme.sh --issue --dnssleep 120 \
+            --dns dns_ali -d gaoyp.com -d *.gaoyp.com \   # ✅ 阿里云域名在前，对应 dns_ali
+            --dns dns_cf -d gaotz.com -d *.gaotz.com      # ✅ Cloudflare 域名在后，对应 dns_cf
+
 
       - name: 7. 签发包含所有域名的单证书-CF主域名
         run: |
