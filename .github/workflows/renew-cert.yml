@@ -62,6 +62,11 @@ jobs:
       - name: 6. 保存证书到仓库
         run: |
           mkdir -p certs
+          pwd
+          ls -la
+          ls ~/.acme.sh
+          ls -R | grep gao
+
           #cp ~/.acme.sh/gaoyp.com_ecc/gaoyp.com.1.cer certs/
           #cp ~/.acme.sh/gaoyp.com_ecc/gaoyp.com.1.key certs/
           #cp ~/.acme.sh/gaoyp.com_ecc/gaoyp.com.1.fullchain.cer certs/
