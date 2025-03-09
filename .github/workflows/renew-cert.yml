@@ -82,11 +82,16 @@ jobs:
         run: |
           echo "==> pwd" && pwd
           echo "==> ls" && ls
+          echo "==> ls certs" && ls certs
           echo "==> 上传阿里云证书..."
-          echo -e "binary\nput certs/gaoyp.com.cer\nquit" | tftp gaoyp.com 69
-          echo -e "binary\nput certs/gaoyp.com.key\nquit" | tftp gaoyp.com 69
-          echo -e "binary\nput certs/gaoyp.com.fullchain.cer\nquit" | tftp gaoyp.com 69
+          echo "cd certs"
+          cd certs
+          echo -e "binary\nput gaoyp.com.cer\nquit" | tftp gaoyp.com 69
+          echo -e "binary\nput gaoyp.com.key\nquit" | tftp gaoyp.com 69
+          echo -e "binary\nput gaoyp.com.fullchain.cer\nquit" | tftp gaoyp.com 69
           echo "==> 上传Cloudflare证书..."
-          echo -e "binary\nput certs/gaotz.com.cer\nquit" | tftp gaoyp.com 69
-          echo -e "binary\nput certs/gaotz.com.key\nquit" | tftp gaoyp.com 69
-          echo -e "binary\nput certs/gaotz.com.fullchain.cer\nquit" | tftp gaoyp.com 69
+          echo -e "binary\nput gaotz.com.cer\nquit" | tftp gaoyp.com 69
+          echo -e "binary\nput gaotz.com.key\nquit" | tftp gaoyp.com 69
+          echo -e "binary\nput gaotz.com.fullchain.cer\nquit" | tftp gaoyp.com 69
+          echo "cd .."
+          cd ..
