@@ -75,8 +75,8 @@ jobs:
        
       - name: 7. 安装 TFTP 客户端
         run: |
-          echo "==> sudo apt-get install -y tftp-hpa"
-          sudo apt-get install -y tftp-hpa
+          echo "==> sudo apt-get install -y atftp"
+          sudo apt-get install -y atftp
 
       - name: 8. 通过 TFTP 上传证书到 gaoyp.com
         run: |
@@ -86,24 +86,26 @@ jobs:
           echo "==> 上传阿里云证书..."
           echo "cd certs"
           cd certs
+          echo "ping -c 4 gaoyp.com"
+          ping -c 4 gaoyp.com
           #echo -e "binary\nput gaoyp.com.cer\nquit" | tftp gaoyp.com 69
           #echo -e "binary\nput gaoyp.com.key\nquit" | tftp gaoyp.com 69
           #echo -e "binary\nput gaoyp.com.fullchain.cer\nquit" | tftp gaoyp.com 69
-          echo "tftp -p -l gaoyp.com.cer -r gaoyp.com.cer gaoyp.com"
-          tftp -p -l gaoyp.com.cer -r gaoyp.com.cer gaoyp.com
-          echo "tftp -p -l gaoyp.com.key -r gaoyp.com.key gaoyp.com"
-          tftp -p -l gaoyp.com.key -r gaoyp.com.key gaoyp.com
-          echo "tftp -p -l gaoyp.com.fullchain.cer -r gaoyp.com.fullchain.cer gaoyp.com"
-          tftp -p -l gaoyp.com.fullchain.cer -r gaoyp.com.fullchain.cer gaoyp.com
+          echo "atftp -p -l gaoyp.com.cer -r gaoyp.com.cer gaoyp.com"
+          atftp -p -l gaoyp.com.cer -r gaoyp.com.cer gaoyp.com
+          echo "atftp -p -l gaoyp.com.key -r gaoyp.com.key gaoyp.com"
+          atftp -p -l gaoyp.com.key -r gaoyp.com.key gaoyp.com
+          echo "atftp -p -l gaoyp.com.fullchain.cer -r gaoyp.com.fullchain.cer gaoyp.com"
+          atftp -p -l gaoyp.com.fullchain.cer -r gaoyp.com.fullchain.cer gaoyp.com
           echo "==> 上传Cloudflare证书..."
           #echo -e "binary\nput gaotz.com.cer\nquit" | tftp gaoyp.com 69
           #echo -e "binary\nput gaotz.com.key\nquit" | tftp gaoyp.com 69
           #echo -e "binary\nput gaotz.com.fullchain.cer\nquit" | tftp gaoyp.com 69
-          echo "tftp -p -l gaotz.com.cer -r gaotz.com.cer gaoyp.com"
-          tftp -p -l gaotz.com.cer -r gaotz.com.cer gaoyp.com
-          echo "tftp -p -l gaotz.com.key -r gaotz.com.key gaoyp.com"
-          tftp -p -l gaotz.com.key -r gaotz.com.key gaoyp.com
-          echo "tftp -p -l gaotz.com.fullchain.cer -r gaotz.com.fullchain.cer gaoyp.com"
-          tftp -p -l gaotz.com.fullchain.cer -r gaotz.com.fullchain.cer gaoyp.com
+          echo "atftp -p -l gaotz.com.cer -r gaotz.com.cer gaoyp.com"
+          atftp -p -l gaotz.com.cer -r gaotz.com.cer gaoyp.com
+          echo "atftp -p -l gaotz.com.key -r gaotz.com.key gaoyp.com"
+          atftp -p -l gaotz.com.key -r gaotz.com.key gaoyp.com
+          echo "atftp -p -l gaotz.com.fullchain.cer -r gaotz.com.fullchain.cer gaoyp.com"
+          atftp -p -l gaotz.com.fullchain.cer -r gaotz.com.fullchain.cer gaoyp.com
           echo "cd .."
           cd ..
