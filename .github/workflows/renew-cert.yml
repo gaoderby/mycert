@@ -22,12 +22,11 @@ jobs:
       - name: 2. 安装并更新 acme.sh
         run: |
           curl https://get.acme.sh | sh  # -v 参数显示详细连接过程
-          ls -la ~/.acme.sh  # 检查安装目录是否存在
-          echo "当前 acme.sh 版本:"
+          echo "==> 当前 acme.sh 版本:"
           ~/.acme.sh/acme.sh --version
-          echo "$HOME/.acme.sh" >> $GITHUB_PATH
+          echo "==> $HOME/.acme.sh" >> $GITHUB_PATH
           ~/.acme.sh/acme.sh --upgrade --auto-upgrade 1
-          echo "更新后的.acme.sh 版本:"
+          echo "==> 更新后的.acme.sh 版本:"
           ~/.acme.sh/acme.sh --version
 
       - name: 3. 设置默认CA服务器并注册用户，建立证书安装目录
@@ -37,11 +36,11 @@ jobs:
           ~/.acme.sh/acme.sh --set-default-ca --server zerossl
           ~/.acme.sh/acme.sh --register-account -m derby_king@qq.com
           mkdir -p certs
-          echo "pwd" && pwd
-          echo "ls -la" && ls -la
-          echo "ls -la ~/" && ls -la ~/
-          echo "ls -la ~/.acme.sh" && ls -la ~/.acme.sh
-          echo "ls -R | grep gao" && ls -R | grep gao
+          echo "==> pwd" && pwd
+          echo "==> ls -la" && ls -la
+          echo "==> ls -la ~/" && ls -la ~/
+          echo "==> ls -la ~/.acme.sh" && ls -la ~/.acme.sh
+          echo "==> ls -R | grep gao" && ls -R | grep gao
 
       - name: 4. 签发单证书-Ali
         run: |
@@ -61,11 +60,11 @@ jobs:
 
       - name: 6. 保存证书到仓库
         run: |
-          echo "pwd" && pwd
-          echo "ls -la" && ls -la
-          echo "ls -la ~/" && ls -la ~/
-          echo "ls -la ~/.acme.sh" && ls -la ~/.acme.sh
-          echo "ls -R | grep gao" && ls -R | grep gao
+          echo "==> pwd" && pwd
+          echo "==> ls -la" && ls -la
+          echo "==> ls -la ~/" && ls -la ~/
+          echo "==> ls -la ~/.acme.sh" && ls -la ~/.acme.sh
+          echo "==> ls -R | grep gao" && ls -R | grep gao
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           git add certs/
@@ -73,18 +72,17 @@ jobs:
           git push
        
       - name: 7. 安装 TFTP 客户端
-        run: sudo apt-get install -y tftp-hpa
+        run: |
+          echo "==> sudo apt-get install -y tftp-hpa"
+          sudo apt-get install -y tftp-hpa
 
       - name: 8. 通过 TFTP 上传证书到 gaoyp.com
         run: |
-          echo "上传阿里云证书..."
+          echo "==> 上传阿里云证书..."
           echo -e "binary\nput certs/gaoyp.com.cer\quit" | tftp gaoyp.com 69
-          echo "上传Cloudflare证书..."
-          echo -e "binary\nput certs/gaotz.com.cer\quit" | tftp gaoyp.com 69
-          echo "上传阿里云证书full..."
-          echo -e "binary\nput certs/gaoyp.com.fullchain.cer\quit" | tftp gaoyp.com 69
-          echo "上传Cloudflare证书full..."
-          echo -e "binary\nput certs/gaotz.com.fullchain.cer\quit" | tftp gaoyp.com 69
-          echo "上传私钥（谨慎操作！）..."
           echo -e "binary\nput certs/gaoyp.com.key\quit" | tftp gaoyp.com 69
+          echo -e "binary\nput certs/gaoyp.com.fullchain.cer\quit" | tftp gaoyp.com 69
+          echo "==> 上传Cloudflare证书..."
+          echo -e "binary\nput certs/gaotz.com.cer\quit" | tftp gaoyp.com 69
           echo -e "binary\nput certs/gaotz.com.key\quit" | tftp gaoyp.com 69
+          echo -e "binary\nput certs/gaotz.com.fullchain.cer\quit" | tftp gaoyp.com 69
