@@ -45,17 +45,17 @@ jobs:
       - name: 4. 签发单证书-Ali
         run: |
           ~/.acme.sh/acme.sh --issue --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --cert-fire certs/gaoyp.com.cer \
-            --key-fire certs/gaoyp.com.key \
-            --fullchain-fire certs/gaoyp.com.fullchain.cer \
+            --cert-file gaoyp.com.cer \
+            --key-file gaoyp.com.key \
+            --fullchain-file gaoyp.com.fullchain.cer \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
       - name: 5. 签发单证书-CF
         run: |
           ~/.acme.sh/acme.sh --issue --dns dns_cf -d gaotz.com -d *.gaotz.com \
-            --cert-fire certs/gaotz.com.cer \
-            --key-fire certs/gaotz.com.key \
-            --fullchain-fire certs/gaotz.com.fullchain.cer \
+            --cert-file gaotz.com.cer \
+            --key-file gaotz.com.key \
+            --fullchain-file gaotz.com.fullchain.cer \
             --yes-I-know-dns-manual-mode-enough-go-ahead-please
 
       - name: 6. 保存证书到仓库
