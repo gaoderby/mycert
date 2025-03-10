@@ -37,7 +37,7 @@ jobs:
           --accountemail "admin@yourdomain.com"
         echo "/opt/acme.sh" >> $GITHUB_PATH
         echo "==> acme.sh version ls -la"
-        acme.sh --version
+        ./acme.sh --version
         ls -la
 
     # 3. 证书有效期检查
@@ -82,6 +82,22 @@ jobs:
         CF_Key: ${{ secrets.CF_KEY }}
         CF_Email: ${{ secrets.CF_EMAIL }}
       run: |
+        echo "==> pwd"
+        pwd
+        echo "==> ls -la"
+        ls -la
+        echo "==> ls -la $CERT_DIR"
+        ls -la $CERT_DIR
+        # 阿里云证书生成
+        acme.sh --issue --dns dns_ali \
+          -d gaoyp.com -d *.gaoyp.com \
+          -d gaotz.com -d *.gaotz.com \
+          --log "$CERT_DIR/acme_ali.log"
+
+        # Cloudflare 证书生成
+        acme.sh --issue --dns dns_cf \
+          -d gaotz.com -d *.gaotz.com \
+          -d gaoyp.com -d *.gaoyp.com \
         echo "==> ls -la $CERT_DIR"
         ls -la $CERT_DIR
         # 阿里云证书生成
