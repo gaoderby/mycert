@@ -24,6 +24,8 @@ jobs:
     # 2. 安装 acme.sh 2.8.5
     - name: 2. 安装依赖
       run: |
+        echo "==> pwd ls -la"
+        pwd && ls -la
         sudo apt-get update
         sudo apt-get install -y git curl openssl
         git clone https://github.com/acmesh-official/acme.sh.git
@@ -34,6 +36,9 @@ jobs:
           --cert-home $CERT_DIR \
           --accountemail "admin@yourdomain.com"
         echo "/opt/acme.sh" >> $GITHUB_PATH
+        echo "==> acme.sh version ls -la"
+        acme.sh --version
+        ls -la
 
     # 3. 证书有效期检查
     - name: 3. 有效期验证
@@ -77,6 +82,8 @@ jobs:
         CF_Key: ${{ secrets.CF_KEY }}
         CF_Email: ${{ secrets.CF_EMAIL }}
       run: |
+        echo "==> ls -la $CERT_DIR"
+        ls -la $CERT_DIR
         # 阿里云证书生成
         acme.sh --issue --dns dns_ali \
           -d gaoyp.com -d *.gaoyp.com \
