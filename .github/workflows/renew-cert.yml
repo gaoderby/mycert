@@ -86,6 +86,8 @@ jobs:
         pwd
         echo "==> ls -la"
         ls -la
+        echo "==>mkdir certs"
+        mkdir certs
         echo "==> ls -la $CERT_DIR"
         ls -la $CERT_DIR
         # 阿里云证书生成
