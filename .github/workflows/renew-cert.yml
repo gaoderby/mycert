@@ -55,7 +55,16 @@ jobs:
         fi
 
         # Cloudflare 证书检查（逻辑同上）
-        # ...
+        if [ -f "$CERT_DIR/mycert_cf.zip" ]; then
+          unzip -q -P "$ZIP_PASSWORD" "$CERT_DIR/mycert_cf.zip" -d /tmp/cloudflare
+          NOT_AFTER=$(openssl x509 -enddate -noout -in "/tmp/cloudflare/gaoyp.com.cer" | cut -d= -f2)
+          EXPIRY_TS=$(date -d "$NOT_AFTER" +%s)
+          REMAINING_DAYS=$(( (EXPIRY_TS - CURRENT_TS) / 86400 ))
+          [ $REMAINING_DAYS -le $RENEW_THRESHOLD ] && NEED_RENEW="true"
+          rm -rf /tmp/cloudflare
+        else
+          NEED_RENEW="true"
+        fi
 
         echo "NEED_RENEW=$NEED_RENEW" >> $GITHUB_ENV
 
@@ -80,12 +89,15 @@ jobs:
           -d gaoyp.com -d *.gaoyp.com \
           --log "$CERT_DIR/acme_cf.log"
 
-        # 加密存储
+        # 加密存储阿里云证书
         mkdir -p $CERT_DIR/aliyun
         cp "/opt/acme.sh/certs/gaoyp.com/*.pem" $CERT_DIR/aliyun/
         cd $CERT_DIR/aliyun && zip -q -P "$ZIP_PASSWORD" "../mycert_ali.zip" *
 
-        # Cloudflare 证书处理（逻辑同上）
+        # 加密存储cloudflare证书
+        mkdir -p $CERT_DIR/cloudflare
+        cp "/opt/acme.sh/certs/gaoyp.com/*.pem" $CERT_DIR/cloudflare/
+        cd $CERT_DIR/cloudflare && zip -q -P "$ZIP_PASSWORD" "../mycert_cf.zip" *
 
     # 5. 提交变更
     - name: 5. 提交更新
