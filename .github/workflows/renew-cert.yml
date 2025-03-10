@@ -1,105 +1,98 @@
-name: Auto Renew Combined Certificate
+name: Auto Cert Manager
 
 on:
+  workflow_dispatch:  # 手动触发
   schedule:
-    - cron: "0 3 * * *"  # 每天北京时间 11 点运行
-  workflow_dispatch:      # 允许手动触发
+    - cron: '0 0 * * *'  # 每天 UTC 时间 0 点执行
+
+env:
+  ACME_VERSION: "2.8.5"   # 锁定版本
+  CERT_DIR: "${{ github.workspace }}/certs"
+  ZIP_PASSWORD: ${{ secrets.MYCERT_PWD }}
+  RENEW_THRESHOLD: 30     # 到期前 30 天触发续期
 
 jobs:
-  renew:
+  certificate-manager:
     runs-on: ubuntu-latest
-    # 启用步骤调试日志（全局生效）
-    env:
-      Ali_Key: ${{ secrets.ALI_KEY }}
-      Ali_Secret: ${{ secrets.ALI_SECRET }}
-      CF_Key: ${{ secrets.CF_KEY }}
-      CF_Email: ${{ secrets.CF_EMAIL }}
-
     steps:
-      - name: 1. 检出仓库
-        uses: actions/checkout@v4
+    # 1. 检出代码库
+    - name: 1. 代码检出
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: 2. 安装并更新 acme.sh
-        run: |
-          curl https://get.acme.sh | sh  # -v 参数显示详细连接过程
-          echo "==> 当前 acme.sh 版本:"
-          ~/.acme.sh/acme.sh --version
-          echo "==> $HOME/.acme.sh" >> $GITHUB_PATH
-          ~/.acme.sh/acme.sh --upgrade --auto-upgrade 1
-          echo "==> 更新后的.acme.sh 版本:"
-          ~/.acme.sh/acme.sh --version
+    # 2. 安装 acme.sh 2.8.5
+    - name: 2. 安装依赖
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git curl openssl
+        git clone https://github.com/acmesh-official/acme.sh.git
+        cd acme.sh
+        git checkout $ACME_VERSION
+        ./acme.sh --install \
+          --home /opt/acme.sh \
+          --cert-home $CERT_DIR \
+          --accountemail "admin@yourdomain.com"
+        echo "/opt/acme.sh" >> $GITHUB_PATH
 
-      - name: 3. 设置默认CA服务器并注册用户，建立证书安装目录
-        run: |
-          # 设置默认ca服务器，有两个letsencrypt和zerossl，acme当前默认后者
-          #~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-          ~/.acme.sh/acme.sh --set-default-ca --server zerossl
-          ~/.acme.sh/acme.sh --register-account -m derby_king@qq.com
-          mkdir -p certs
-          echo "==> pwd" && pwd
-          echo "==> ls -la" && ls -la
-          echo "==> ls -la ~/" && ls -la ~/
-          echo "==> ls -la ~/.acme.sh" && ls -la ~/.acme.sh
-          echo "==> ls $(pwd)/* -R | grep gao && echo Found || echo Not Found" && ls $(pwd)/* -R | grep gao && echo Found || echo Not Found
+    # 3. 证书有效期检查
+    - name: 3. 有效期验证
+      id: expiry_check
+      run: |
+        NEED_RENEW="false"
+        CURRENT_TS=$(date +%s)
 
-      - name: 4. 签发单证书-Ali
-        run: |
-          ~/.acme.sh/acme.sh --issue --dns dns_ali -d gaoyp.com -d *.gaoyp.com \
-            --cert-file gaoyp.com.cer \
-            --key-file gaoyp.com.key \
-            --fullchain-file gaoyp.com.fullchain.cer \
-            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+        # 阿里云证书检查
+        if [ -f "$CERT_DIR/mycert_ali.zip" ]; then
+          unzip -q -P "$ZIP_PASSWORD" "$CERT_DIR/mycert_ali.zip" -d /tmp/aliyun
+          NOT_AFTER=$(openssl x509 -enddate -noout -in "/tmp/aliyun/gaoyp.com.cer" | cut -d= -f2)
+          EXPIRY_TS=$(date -d "$NOT_AFTER" +%s)
+          REMAINING_DAYS=$(( (EXPIRY_TS - CURRENT_TS) / 86400 ))
+          [ $REMAINING_DAYS -le $RENEW_THRESHOLD ] && NEED_RENEW="true"
+          rm -rf /tmp/aliyun
+        else
+          NEED_RENEW="true"
+        fi
 
-      - name: 5. 签发单证书-CF
-        run: |
-          ~/.acme.sh/acme.sh --issue --dns dns_cf -d gaotz.com -d *.gaotz.com \
-            --cert-file gaotz.com.cer \
-            --key-file gaotz.com.key \
-            --fullchain-file gaotz.com.fullchain.cer \
-            --yes-I-know-dns-manual-mode-enough-go-ahead-please
+        # Cloudflare 证书检查（逻辑同上）
+        # ...
 
-      - name: 6. 保存证书到仓库
-        run: |
-          # 注意：更新仓库需要预先设置工作流读写权限，打开仓库mycert-Settings-Actions-General-滚到Workflow permissions-读写-Save
-          echo "==> pwd" && pwd
-          echo "==> ls -la" && ls -la
-          echo "==> ls -la ~/" && ls -la ~/
-          echo "==> ls -la ~/.acme.sh" && ls -la ~/.acme.sh
-          echo "==> ls | grep gao && mv gao* certs || echo Not Found"
-          ls | grep gao && mv gao* certs || echo Not Found
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add certs/
-          git commit -m "Add certs"
-          git push
-       
-#      - name: 7. 安装 TFTP 客户端
-#        run: |
-#          echo "==> sudo apt-get install -y atftp"
-#          sudo apt-get install -y atftp
-#
-#      - name: 8. 通过 TFTP 上传证书到 gaoyp.com
-#        run: |
-#          echo "==> pwd" && pwd
-#          echo "==> ls" && ls
-#          echo "==> ls certs" && ls certs
-#          echo "==> 上传阿里云证书..."
-#          echo "cd certs"
-#          cd certs
-#          echo "ping -c 4 gaoyp.com"
-#          ping -c 4 gaoyp.com
-#          echo "atftp -p -l gaoyp.com.cer -r gaoyp.com.cer gaoyp.com"
-#          atftp -p -l gaoyp.com.cer -r gaoyp.com.cer gaoyp.com
-#          echo "atftp -p -l gaoyp.com.key -r gaoyp.com.key gaoyp.com"
-#          atftp -p -l gaoyp.com.key -r gaoyp.com.key gaoyp.com
-#          echo "atftp -p -l gaoyp.com.fullchain.cer -r gaoyp.com.fullchain.cer gaoyp.com"
-#          atftp -p -l gaoyp.com.fullchain.cer -r gaoyp.com.fullchain.cer gaoyp.com
-#          echo "==> 上传Cloudflare证书..."
-#          echo "atftp -p -l gaotz.com.cer -r gaotz.com.cer gaoyp.com"
-#          atftp -p -l gaotz.com.cer -r gaotz.com.cer gaoyp.com
-#          echo "atftp -p -l gaotz.com.key -r gaotz.com.key gaoyp.com"
-#          atftp -p -l gaotz.com.key -r gaotz.com.key gaoyp.com
-#          echo "atftp -p -l gaotz.com.fullchain.cer -r gaotz.com.fullchain.cer gaoyp.com"
-#          atftp -p -l gaotz.com.fullchain.cer -r gaotz.com.fullchain.cer gaoyp.com
-#          echo "cd .."
-#          cd ..
+        echo "NEED_RENEW=$NEED_RENEW" >> $GITHUB_ENV
+
+    # 4. 证书签发与更新
+    - name: 4. 证书签发
+      if: env.NEED_RENEW == 'true'
+      env:
+        Ali_Key: ${{ secrets.ALI_KEY }}
+        Ali_Secret: ${{ secrets.ALI_SECRET }}
+        CF_Key: ${{ secrets.CF_KEY }}
+        CF_Email: ${{ secrets.CF_EMAIL }}
+      run: |
+        # 阿里云证书生成
+        acme.sh --issue --dns dns_ali \
+          -d gaoyp.com -d *.gaoyp.com \
+          -d gaotz.com -d *.gaotz.com \
+          --log "$CERT_DIR/acme_ali.log"
+
+        # Cloudflare 证书生成
+        acme.sh --issue --dns dns_cf \
+          -d gaotz.com -d *.gaotz.com \
+          -d gaoyp.com -d *.gaoyp.com \
+          --log "$CERT_DIR/acme_cf.log"
+
+        # 加密存储
+        mkdir -p $CERT_DIR/aliyun
+        cp "/opt/acme.sh/certs/gaoyp.com/*.pem" $CERT_DIR/aliyun/
+        cd $CERT_DIR/aliyun && zip -q -P "$ZIP_PASSWORD" "../mycert_ali.zip" *
+
+        # Cloudflare 证书处理（逻辑同上）
+
+    # 5. 提交变更
+    - name: 5. 提交更新
+      if: env.NEED_RENEW == 'true'
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add "$CERT_DIR/*.zip"
+        git commit -m "[Auto] 证书更新 $(date +'%Y-%m-%d')"
+        git push
