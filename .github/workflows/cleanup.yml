@@ -1,0 +1,33 @@
+name: Cleanup Old Workflow Runs
+
+on:
+  # 手动触发配置（可在 GitHub 网页或 CLI 中启动）
+  workflow_dispatch:
+    inputs:
+      retain_days:
+        description: "保留最近多少天的记录（默认 30 天）"
+        required: false
+        default: 30
+        type: number
+
+  # 定时触发配置（每月1日 00:00 UTC 自动执行）
+  schedule:
+    - cron: "0 0 1 * *"
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    # 关键权限配置（必须添加才能删除 Workflow Runs）
+    permissions:
+      actions: write # 删除权限
+      contents: read # 代码拉取权限
+
+    steps:
+      - name: Delete old workflow runs
+        uses: gaoderby/delete-workflow-runs@main
+        with:
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: ${{ github.event.inputs.retain_days || 30 }} # 手动触发时用输入值，定时触发时用默认值 30
+          keep_minimum_runs: 5
