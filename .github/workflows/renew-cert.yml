@@ -1,9 +1,9 @@
 #
-# Auto Renew SAN Certificates by GaoYP, 20250308, modified 20250322
+# Auto Renew SAN Certificates by GaoYP, 20250716, modified 20260125
 #
 name: Auto Renew SAN Certificates
 
-on:
+on:s
   schedule:
     - cron: "0 0 * * 5"  # 每周五 UTC 0 点检查
   workflow_dispatch:
@@ -12,8 +12,8 @@ jobs:
   certificate-manager:
     runs-on: ubuntu-latest
     env:
-      RENEW_TH: 10  # 触发续期的剩余天数阈值THRESHOLD
-      DNSSLEEP: 120 # DNS API生效等待时间
+      RENEW_TH: ${{ vars.RENEW_TH || 10 }} # 触发续期的剩余天数阈值THRESHOLD
+      DNSSLEEP: ${{ vars.DNSSLEEP || 120 }} # DNS API生效等待时间
       DOMAIN_ALI: "gaoyp.com" # 阿里云域名
       DOMAIN_CF: "gaotz.com"  # Cloudflare 域名
       CERT_DIR: "${{ github.workspace }}/certs"
@@ -109,16 +109,21 @@ jobs:
             -d $DOMAIN_ALI -d *.$DOMAIN_ALI \
             --cert-file $CERT_DIR/$DOMAIN_ALI.cer \
             --key-file $CERT_DIR/$DOMAIN_ALI.key \
+            --ca-file $CERT_DIR/$DOMAIN_ALI.ca.cer \
             --fullchain-file $CERT_DIR/$DOMAIN_ALI.fullchain.cer
 
           # 将证书文件打包为 ZIP 并加密
           zip -P $MYCERT_PWD -j $CERT_DIR/$DOMAIN_ALI.zip \
             $CERT_DIR/$DOMAIN_ALI.cer \
             $CERT_DIR/$DOMAIN_ALI.key \
+            $CERT_DIR/$DOMAIN_ALI.ca.cer \
             $CERT_DIR/$DOMAIN_ALI.fullchain.cer
 
           # 删除原始证书文件
-          rm -f $CERT_DIR/$DOMAIN_ALI.cer $CERT_DIR/$DOMAIN_ALI.key $CERT_DIR/$DOMAIN_ALI.fullchain.cer
+          rm -f $CERT_DIR/$DOMAIN_ALI.cer \
+            $CERT_DIR/$DOMAIN_ALI.key \
+            $CERT_DIR/$DOMAIN_ALI.ca.cer \
+            $CERT_DIR/$DOMAIN_ALI.fullchain.cer
 
       - name: 5. 签发Cloudflare单证书并加密
         if: env.NEED_RENEW == 'true'
@@ -128,16 +133,21 @@ jobs:
             -d $DOMAIN_CF -d *.$DOMAIN_CF \
             --cert-file $CERT_DIR/$DOMAIN_CF.cer \
             --key-file $CERT_DIR/$DOMAIN_CF.key \
+            --ca-file $CERT_DIR/$DOMAIN_CF.ca.cer \
             --fullchain-file $CERT_DIR/$DOMAIN_CF.fullchain.cer
 
           # 将证书文件打包为 ZIP 并加密
           zip -P $MYCERT_PWD -j $CERT_DIR/$DOMAIN_CF.zip \
             $CERT_DIR/$DOMAIN_CF.cer \
             $CERT_DIR/$DOMAIN_CF.key \
+            $CERT_DIR/$DOMAIN_CF.ca.cer \
             $CERT_DIR/$DOMAIN_CF.fullchain.cer
 
           # 删除原始证书文件
-          rm -f $CERT_DIR/$DOMAIN_CF.cer $CERT_DIR/$DOMAIN_CF.key $CERT_DIR/$DOMAIN_CF.fullchain.cer
+          rm -f $CERT_DIR/$DOMAIN_CF.cer \
+            $CERT_DIR/$DOMAIN_CF.key \
+            $CERT_DIR/$DOMAIN_CF.ca.cer \
+            $CERT_DIR/$DOMAIN_CF.fullchain.cer
 
       # ---------- 签发多域名证书并加密 ----------
       - name: 6. 签发阿里云 SAN 证书并加密
@@ -148,16 +158,21 @@ jobs:
             -d $DOMAIN_ALI -d *.$DOMAIN_ALI -d $DOMAIN_CF -d *.$DOMAIN_CF \
             --cert-file $CERT_DIR/$DOMAIN_ALI.cer \
             --key-file $CERT_DIR/$DOMAIN_ALI.key \
+            --ca-file $CERT_DIR/$DOMAIN_ALI.ca.cer \
             --fullchain-file $CERT_DIR/$DOMAIN_ALI.fullchain.cer
 
           # 将证书文件打包为 ZIP 并加密
           zip -P $MYCERT_PWD -j $CERT_DIR/$DOMAIN_ALI.san.zip \
             $CERT_DIR/$DOMAIN_ALI.cer \
             $CERT_DIR/$DOMAIN_ALI.key \
+            $CERT_DIR/$DOMAIN_ALI.ca.cer \
             $CERT_DIR/$DOMAIN_ALI.fullchain.cer
 
           # 删除原始证书文件
-          rm -f $CERT_DIR/$DOMAIN_ALI.cer $CERT_DIR/$DOMAIN_ALI.key $CERT_DIR/$DOMAIN_ALI.fullchain.cer
+          rm -f $CERT_DIR/$DOMAIN_ALI.cer \
+            $CERT_DIR/$DOMAIN_ALI.key \
+            $CERT_DIR/$DOMAIN_ALI.ca.cer \
+            $CERT_DIR/$DOMAIN_ALI.fullchain.cer
 
       - name: 7. 签发Cloudflare SAN 证书并加密
         if: env.NEED_RENEW == 'true'
@@ -167,16 +182,21 @@ jobs:
             -d $DOMAIN_CF -d *.$DOMAIN_CF -d $DOMAIN_ALI -d *.$DOMAIN_ALI \
             --cert-file $CERT_DIR/$DOMAIN_CF.cer \
             --key-file $CERT_DIR/$DOMAIN_CF.key \
+            --ca-file $CERT_DIR/$DOMAIN_CF.ca.cer \
             --fullchain-file $CERT_DIR/$DOMAIN_CF.fullchain.cer
 
           # 将证书文件打包为 ZIP 并加密
           zip -P $MYCERT_PWD -j $CERT_DIR/$DOMAIN_CF.san.zip \
             $CERT_DIR/$DOMAIN_CF.cer \
             $CERT_DIR/$DOMAIN_CF.key \
+            $CERT_DIR/$DOMAIN_CF.ca.cer \
             $CERT_DIR/$DOMAIN_CF.fullchain.cer
 
           # 删除原始证书文件
-          rm -f $CERT_DIR/$DOMAIN_CF.cer $CERT_DIR/$DOMAIN_CF.key $CERT_DIR/$DOMAIN_CF.fullchain.cer
+          rm -f $CERT_DIR/$DOMAIN_CF.cer \
+            $CERT_DIR/$DOMAIN_CF.key \
+            $CERT_DIR/$DOMAIN_CF.ca.cer \
+            $CERT_DIR/$DOMAIN_CF.fullchain.cer
 
       # ---------- 保存到仓库 ----------
       - name: 8. 提交证书到仓库
