@@ -3,7 +3,7 @@
 #
 name: Auto Renew SAN Certificates
 
-on:s
+on:
   schedule:
     - cron: "0 0 * * 5"  # 每周五 UTC 0 点检查
   workflow_dispatch:
