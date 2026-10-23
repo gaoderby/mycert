@@ -1,5 +1,5 @@
 #
-# Auto Renew SAN Certificates by GaoYP, 20250716, modified 20260126
+# Auto Renew SAN Certificates by GaoYP, 20250716, modified 20261023
 #
 name: Auto Renew SAN Certificates
 
@@ -12,7 +12,7 @@ jobs:
   certificate-manager:
     runs-on: ubuntu-latest
     env:
-      RENEW_TH: ${{ vars.RENEW_TH || 10 }} # 触发续期的剩余天数阈值THRESHOLD
+      RENEW_TH: ${{ vars.RENEW_TH || 28 }} # 触发续期的剩余天数阈值THRESHOLD
       DNSSLEEP: ${{ vars.DNSSLEEP || 120 }} # DNS API生效等待时间
       DOMAIN_ALI: "gaoyp.com" # 阿里云域名
       DOMAIN_CF: "gaotz.com"  # Cloudflare 域名
